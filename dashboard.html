@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الصفحة الرئيسية</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #4267B2;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .container {
+      margin: 20px auto;
+      max-width: 800px;
+      text-align: center;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .message {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      text-align: left;
+    }
+    .username {
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .publish-message {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #4267B2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .publish-message:hover {
+      background-color: #365899;
+    }
+    .input-message {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .logout-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4267B2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .logout-button:hover {
+      background-color: #365899;
+    }
+    .top-bar {
+      background-color: #333;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+    .top-bar span {
+      margin: 0 15px;
+      cursor: pointer;
+      font-size: 24px;
+    }
+    .top-bar span:hover {
+      color: #f39c12;
+    }
+    .profile-info {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      display: none;
+      text-align: left;
+    }
+    .profile-info label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .profile-info input,
+    .profile-info select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .profile-info button {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #4267B2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .profile-info button:hover {
+      background-color: #365899;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <span id="home-icon">🪟</span>
+    <span id="messages-icon">📥</span>
+    <span id="notifications-icon">🔔</span>
+    <span id="friends-icon">👥</span>
+    <span id="profile-icon">👤</span>
+  </div>
+
+  <div class="profile-info" id="profile-info">
+    <h2>تعديل الملف الشخصي</h2>
+    <label>اسم المستخدم: <input type="text" id="edit-username" value=""></label>
+    <label>العمر: <input type="number" id="edit-age" value=""></label>
+    <label>العلاقة العاطفية: 
+      <select id="edit-relationship">
+        <option value="أعزب">أعزب</option>
+        <option value="متزوج">متزوج</option>
+        <option value="مرتبط">مرتبط</option>
+      </select>
+    </label>
+    <label>المهنة: <input type="text" id="edit-job" value=""></label>
+    <label>التعليم: <input type="text" id="edit-education" value=""></label>
+    <button id="save-profile-button">حفظ التعديلات</button>
+  </div>
+
+  <header>الصفحة الرئيسية</header>
+  <div class="container" id="main-container">
+    <p class="welcome-message">مرحبًا بك في تطبيق Spherely!</p>
+    <textarea class="input-message" id="message-input" placeholder="اكتب رسالتك هنا..."></textarea>
+    <button class="publish-message" id="publish-button">نشر الرسالة</button>
+    <div id="messages-container"></div>
+    <button class="logout-button" id="logout-button">تسجيل الخروج</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getDatabase, ref, set, get, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCnHSUo_Vu53NidFWYlQ74_CyOyfVW_BqQ",
+      authDomain: "alaah-8d503.firebaseapp.com",
+      databaseURL: "https://alaah-8d503-default-rtdb.firebaseio.com",
+      projectId: "alaah-8d503",
+      storageBucket: "alaah-8d503.appspot.com",
+      messagingSenderId: "365922482892",
+      appId: "1:365922482892:web:a843fbb3594d200c67e069",
+      measurementId: "G-D4TPJW4RT8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    document.getElementById('profile-icon').addEventListener('click', () => {
+      document.getElementById('profile-info').style.display = 'block';
+      document.getElementById('edit-username').value = sessionStorage.getItem('username') || '';
+      document.getElementById('edit-age').value = sessionStorage.getItem('age') || '';
+      document.getElementById('edit-relationship').value = sessionStorage.getItem('relationship') || 'أعزب';
+      document.getElementById('edit-job').value = sessionStorage.getItem('job') || '';
+      document.getElementById('edit-education').value = sessionStorage.getItem('education') || '';
+    });
+
+    document.getElementById('save-profile-button').addEventListener('click', () => {
+      sessionStorage.setItem('username', document.getElementById('edit-username').value);
+      sessionStorage.setItem('age', document.getElementById('edit-age').value);
+      sessionStorage.setItem('relationship', document.getElementById('edit-relationship').value);
+      sessionStorage.setItem('job', document.getElementById('edit-job').value);
+      sessionStorage.setItem('education', document.getElementById('edit-education').value);
+
+      alert('تم حفظ التعديلات بنجاح!');
+      document.getElementById('profile-info').style.display = 'none';
+    });
+
+    document.getElementById('publish-button').addEventListener('click', () => {
+      const message = document.getElementById('message-input').value;
+      const username = sessionStorage.getItem('username') || 'مستخدم مجهول';
+
+      if (message.trim() !== '') {
+        const newMessageKey = push(ref(database, 'messages')).key;
+        set(ref(database, 'messages/' + newMessageKey), {
+          username: username,
+          message: message,
+          timestamp: new Date().toISOString()
+        });
+        document.getElementById('message-input').value = '';
+      } else {
+        alert('من فضلك أدخل رسالة!');
+      }
+    });
+
+    document.getElementById('logout-button').addEventListener('click', () => {
+      sessionStorage.clear();
+      alert('تم تسجيل الخروج بنجاح!');
+      window.location.href = "spherely.html";
+    });
+  </script>
+
+</body></html>
